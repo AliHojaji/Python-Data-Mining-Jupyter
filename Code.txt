@@ -1,0 +1,159 @@
+import pandas as pd
+df = pd.read_csv("application_record.csv")
+#Download Link of Dataset: https://www.kaggle.com/rikdifos/credit-card-approval-prediction
+df.dtypes
+df.info()
+df.head()
+df.tail()
+df.describe()
+import numpy.random as npr
+import numpy as np
+random_column = lambda x : df.iloc[:,npr.randint(low = 0, high = 7, size = 1)]
+print("Median about " + str(random_column(1).median()))
+print("Median about " + str(random_column(1).median()))
+print("Median about " + str(random_column(1).median()))
+print("Mode about " + str(random_column(1).mode()))
+print("Mode about " + str(random_column(1).mode()))
+print("Mode about " + str(random_column(1).mode()))
+print("Mean about " + str(random_column(1).mean()))
+print("Mean about " + str(random_column(1).mean()))
+print("Mean about " + str(random_column(1).mean()))
+from numpy import percentile
+dataset = df
+D_Employed = dataset['DAYS_EMPLOYED'].values
+D = np.array(D_Employed)
+quartile = percentile(D, [25, 50, 75])
+dataset_min = D.min()
+dataset_max = D.max()
+print(f'Min = {dataset_min}\nQ1 = {quartile[0]}\nMedian = {quartile[1]}\nQ2 = {quartile[2]}\nMax = {dataset_max}')
+import matplotlib.pyplot as plt
+fig = plt.figure(figsize =(10, 7))
+plt.boxplot(df['AMT_INCOME_TOTAL'])
+plt.show()
+fig = plt.figure(figsize =(10, 7))
+plt.boxplot(df['CNT_FAM_MEMBERS'])
+plt.show()
+from scipy import stats
+stats.probplot(df['FLAG_WORK_PHONE'],plot=plt)
+from scipy import stats
+stats.probplot(df['DAYS_BIRTH'],plot=plt)
+import seaborn as sns
+sns.boxenplot(df['CNT_FAM_MEMBERS'])
+sns.boxenplot(df['DAYS_EMPLOYED'])
+sns.displot(df['NAME_EDUCATION_TYPE'])
+plt.figure(figsize=(15,7))
+plt.title('Distribution of Number of Children')
+sns.distplot(df['CNT_CHILDREN'].values/(60*60))
+fig = plt.figure(figsize = (8,8))
+plt.scatter(df.AMT_INCOME_TOTAL, df.CNT_FAM_MEMBERS.values/(60*60),alpha=0.5)
+plt.scatter(df.AMT_INCOME_TOTAL, df.CNT_FAM_MEMBERS.values/(60*60),alpha=1)
+plt.xlabel('CNT_FAM_MEMBERS')
+plt.ylabel('AMT_INCOME_TOTAL')
+plt.title('Scatter plot between Annual income price and Family size ')
+plt.show()
+sns.set_style('whitegrid')
+sns.lmplot('DAYS_BIRTH', 'DAYS_EMPLOYED', data=df, hue='FLAG_OWN_REALTY', fit_reg=False, palette='coolwarm', size=6, aspect=1)
+sns.set_style('whitegrid')
+sns.lmplot('AMT_INCOME_TOTAL', 'CNT_CHILDREN', data=df, hue='FLAG_OWN_CAR', fit_reg=False, palette='coolwarm', size=6, aspect=1)
+a = sns.FacetGrid(df, hue='CNT_FAM_MEMBERS', palette='coolwarm', size=6, aspect=2)
+a = a.map(plt.hist, 'FLAG_OWN_REALTY', bins= 25, alpha= 0.6)
+a = sns.FacetGrid(df, hue='NAME_INCOME_TYPE', palette='coolwarm', size=6, aspect=2)
+a = a.map(plt.hist, 'FLAG_OWN_CAR', bins= 25, alpha= 0.6)
+import cufflinks as cf
+cf.go_offline()
+df.pivot(columns='FLAG_OWN_REALTY', values='CODE_GENDER').iplot(kind='box')
+df.pivot(columns='FLAG_MOBIL', values='FLAG_WORK_PHONE').iplot(kind='box')
+import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import silhouette_score
+from matplotlib import pyplot as plt
+%matplotlib inline
+df = pd.read_csv('application_record.csv', nrows=1500)
+df.head()
+df.shape
+plt.scatter(df['AMT_INCOME_TOTAL'], df['DAYS_EMPLOYED'])
+k_rng = range(1,10)
+sse = []
+for k in k_rng:
+    km = KMeans(n_clusters=k)
+    km.fit(df[['AMT_INCOME_TOTAL','DAYS_EMPLOYED']])
+    sse.append(km.inertia_)
+plt.xlabel('K')
+plt.ylabel('Sum Of Squared Error')
+plt.plot(k_rng,sse)
+z = df[['AMT_INCOME_TOTAL','DAYS_EMPLOYED']]
+silhouette_score(z, km.labels_)
+scaler = MinMaxScaler()
+scaler.fit(df[['DAYS_EMPLOYED']])
+df[['DAYS_EMPLOYED']] = scaler.transform(df[['DAYS_EMPLOYED']])
+df
+km = KMeans(n_clusters=4)
+y_predicted = km.fit_predict(df[['AMT_INCOME_TOTAL','DAYS_EMPLOYED']])
+df['cluster'] = y_predicted
+df1 = df[df.cluster == 0]
+df2 = df[df.cluster == 1]
+df3 = df[df.cluster == 2]
+df4 = df[df.cluster == 3]
+plt.scatter(df1['AMT_INCOME_TOTAL'], df1['DAYS_EMPLOYED'], color='red')
+plt.scatter(df2['AMT_INCOME_TOTAL'], df2['DAYS_EMPLOYED'], color='green')
+plt.scatter(df3['AMT_INCOME_TOTAL'], df3['DAYS_EMPLOYED'], color='blue')
+plt.scatter(df4['AMT_INCOME_TOTAL'], df4['DAYS_EMPLOYED'], color='black')
+plt.legend()
+col_list = ['AMT_INCOME_TOTAL','DAYS_EMPLOYED']
+data = pd.read_csv('application_record.csv', usecols=col_list, nrows=1500)
+x = data.values
+data = pd.DataFrame(x)
+from sklearn.preprocessing import StandardScaler
+std_slc = StandardScaler()
+x_std = std_slc.fit_transform(x)
+from sklearn.cluster import DBSCAN
+clt = DBSCAN(eps=0.7)
+model = clt.fit(x_std)
+labels = model.labels_
+from sklearn import metrics
+metrics.silhouette_score(x_std, labels)
+clusters = pd.DataFrame(model.fit_predict(x_std))
+data['Cluster'] = clusters
+data
+fig = plt.figure(figsize=(10,10));
+ax = fig.add_subplot(111)
+scatter = ax.scatter(data[0],data[1], c=data['Cluster'], s=50)
+ax.set_title('DBSCAN Clustering')
+ax.set_xlabel('X0')
+ax.set_ylabel('X1')
+plt.colorbar(scatter)
+plt.show()
+import pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
+col_names = ['ID', 'CODE_GENDER', 'FLAG_OWN_CAR', 'FLAG_OWN_REALTY', 'CNT_CHILDREN', 'AMT_INCOME_TOTAL', 'NAME_INCOME_TYPE', 'NAME_EDUCATION_TYPE', 'NAME_FAMILY_STATUS', 'NAME_HOUSING_TYPE', 
+'DAYS_BIRTH', 'DAYS_EMPLOYED', 'FLAG_MOBIL', 'FLAG_WORK_PHONE', 'FLAG_PHONE', 'FLAG_EMAIL', 'OCCUPATION_TYPE', 'CNT_FAM_MEMBERS']
+pima = pd.read_csv('application_record.csv', header=None, names=col_names, nrows=1500)
+pima = pima.iloc[1:]
+pima.head()
+feature_cols = ['ID','DAYS_BIRTH', 'DAYS_EMPLOYED', 'FLAG_MOBIL', 'FLAG_WORK_PHONE', 'FLAG_PHONE', 'FLAG_EMAIL']
+x = pima[feature_cols]
+y = pima.AMT_INCOME_TOTAL.astype(float)
+y
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=1)
+clf = DecisionTreeClassifier()
+clf = clf.fit(x_train, y_train)
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+y_pred = clf.predict(x_test)
+print('Accuracy:', metrics.accuracy_score(y_test, y_pred))
+print('Precision:', precision_score(y_test, y_pred, average='micro'))
+print('Recall', recall_score(y_test, y_pred, average='micro'))
+from io import StringIO
+from sklearn.tree import DecisionTreeClassifier, export_graphviz
+from pydotplus import graph_from_dot_data, pydotplus
+from PIL import Image
+import os
+os.environ["PATH"] += os.pathsep + 'C:\Program Files\Graphviz/bin/'
+dot_data = StringIO()
+export_graphviz(clf, out_file=dot_data , filled=True, rounded=True, special_characters=True, feature_names=feature_cols)
+graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
+graph.write_png('d.png')
+Image(graph.create_png())
